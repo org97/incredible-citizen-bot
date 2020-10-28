@@ -1,0 +1,4 @@
+python-telegram-bot
+SQLAlchemy
+sqla_yaml_fixtures
+python-dotenv
