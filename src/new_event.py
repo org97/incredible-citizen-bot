@@ -1,12 +1,16 @@
-from telegram.ext import ConversationHandler, MessageHandler, Filters, CallbackQueryHandler, CallbackContext
+from telegram.ext import (
+    ConversationHandler,
+    MessageHandler,
+    Filters,
+    CallbackQueryHandler,
+    CallbackContext)
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from menu import default_markup
-from models import User, Event, City
+from models import User, Event, City, Region
 import strings as s
-from utils import cities_keyboard
 from datetime import datetime, timedelta
 from configuration import conf
-from utils import user_allowed
+from utils import cities_keyboard, regions_keyboard, region_cities_keyboard, user_allowed
 
 # New event stages
 START, SELECTING_CITY, TYPING_NAME, TYPING_DATES, \
@@ -36,15 +40,54 @@ def select_event_city(update: Update, context: CallbackContext):
                                      reply_markup=default_markup)
         return ConversationHandler.END
 
-    # Remove 'Other city' option
-    event_cities_keyboard = cities_keyboard()[:-1]
-    event_cities_keyboard.append([InlineKeyboardButton(
-        s.geo_independent_event, callback_data='select_city:None')])
+    event_cities_keyboard = [
+        [InlineKeyboardButton(
+            user.city.name, callback_data='select_city:%s' % user.city.name)],
+        [InlineKeyboardButton(
+            "Города Беларуси >>", callback_data='select_city_2')],
+        [InlineKeyboardButton(
+            s.geo_independent_event, callback_data='select_city:None')],
+    ]
     reply_markup = InlineKeyboardMarkup(event_cities_keyboard)
 
-    query.from_user.send_message(s.step1_select_event_city,
-                                 parse_mode=ParseMode.HTML,
-                                 reply_markup=reply_markup)
+    if query.message.text == s.how_to_create_description:
+        # on starting
+        query.from_user.send_message(s.step1_select_event_city,
+                                     parse_mode=ParseMode.HTML,
+                                     reply_markup=reply_markup)
+    else:
+        # on navigating back
+        query.edit_message_text(s.step1_select_event_city,
+                                parse_mode=ParseMode.HTML,
+                                reply_markup=reply_markup)
+    return SELECTING_CITY
+
+
+def select_event_city_2(update: Update, context: CallbackContext):
+    query = update.callback_query
+    user = query.from_user
+    query.answer()
+
+    reply_markup = InlineKeyboardMarkup(regions_keyboard())
+    query.edit_message_text(
+        s.step1_select_event_city,
+        parse_mode=ParseMode.HTML,
+        reply_markup=reply_markup)
+    return SELECTING_CITY
+
+
+def select_event_city_3(update: Update, context: CallbackContext):
+    query = update.callback_query
+    user = query.from_user
+    query.answer()
+
+    region_name = query.data.split(':')[1]
+    region = Region.by(name=region_name)
+    reply_markup = InlineKeyboardMarkup(region_cities_keyboard(region=region))
+    query.edit_message_text(
+        s.step1_select_event_city,
+        parse_mode=ParseMode.HTML,
+        reply_markup=reply_markup)
     return SELECTING_CITY
 
 
@@ -269,12 +312,20 @@ conv_handler = ConversationHandler(
         Filters.regex('^%s$' % s.propose_new_event), start_new_event)],
     states={
         START: [
-            CallbackQueryHandler(select_event_city,
-                                 pattern='^select_event_city$'),
+            CallbackQueryHandler(
+                select_event_city, pattern='^select_event_city$'),
         ],
         SELECTING_CITY: [
-            CallbackQueryHandler(enter_event_name,
-                                 pattern='^select_city'),
+            # going back from the list of regional cities
+            CallbackQueryHandler(select_event_city, pattern='^select_city_1$'),
+            # selecting a region
+            CallbackQueryHandler(select_event_city_2,
+                                 pattern='^select_city_2$'),
+            # selecting a city by region
+            CallbackQueryHandler(select_event_city_3,
+                                 pattern='^select_city_3'),
+            # concrete city is selected
+            CallbackQueryHandler(enter_event_name, pattern='^select_city'),
         ],
         TYPING_NAME: [
             # on going back from setting event name
