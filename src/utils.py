@@ -1,5 +1,5 @@
 from telegram import InlineKeyboardButton
-from models import User
+from models import User, Region
 from telegram.ext import ConversationHandler
 from functools import wraps
 import strings as s
@@ -21,8 +21,27 @@ def cities_keyboard():
         [InlineKeyboardButton(
             "Гомель", callback_data='select_city:Гомель')],
         [InlineKeyboardButton(
+            "Города Беларуси >>", callback_data='select_city_2')],
+        [InlineKeyboardButton(
             "Другой", callback_data='select_city:Другой')],
     ]
+
+
+def regions_keyboard():
+    regions = Region.all()
+    keyboard = [[InlineKeyboardButton(r.name, callback_data='select_city_3:%s' % r.name)]
+                for r in regions]
+    keyboard += [[InlineKeyboardButton("<< Назад",
+                                       callback_data='select_city_1')]]
+    return keyboard
+
+
+def region_cities_keyboard(region: Region):
+    keyboard = [[InlineKeyboardButton(c.name, callback_data='select_city:%s' % c.name)]
+                for c in region.cities]
+    keyboard += [[InlineKeyboardButton("<< Назад",
+                                       callback_data='select_city_2')]]
+    return keyboard
 
 
 numbers_1_10 = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣',

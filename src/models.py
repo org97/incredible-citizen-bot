@@ -22,14 +22,34 @@ from configuration import conf
 Base = declarative_base()
 
 
-class City(Base):
-    __tablename__ = 'cities'
+class Region(Base):
+    __tablename__ = 'regions'
 
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)
 
     def __repr__(self):
-        return "<City(id='%s', name='%s')>" % (self.id, self.name)
+        return "<Region(id='%s', name='%s')>" % (self.id, self.name)
+
+    @staticmethod
+    def all():
+        return db.session.query(Region).all()
+
+    @staticmethod
+    def by(name):
+        return db.session.query(Region).filter(Region.name == name).first()
+
+
+class City(Base):
+    __tablename__ = 'cities'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+    region_id = Column(Integer, ForeignKey('regions.id'))
+    region = relationship(Region, backref=backref('cities', uselist=True))
+
+    def __repr__(self):
+        return "<City(id='%s', name='%s', region='%s')>" % (self.id, self.name, self.region)
 
     @staticmethod
     def by(name):
