@@ -18,17 +18,16 @@ user_is_not_registered_error = 'Вам необходимо зарегистри
 menu = 'Меню'
 invite_friends = 'Пригласить друзей'
 feedback = 'Обратная связь'
-faq = 'FAQ'
+how_does_it_work = 'Как это работает'
 got_it = 'Принято!'
 update_city = 'Обновить свой город'
 unknow_request = 'Извините, я не понимаю на чём вы настаиваете.'
 main_menu = 'Главное меню'
-faq_message = 'Однажды здесь появится FAQ'
-feedback_message = 'Я тебя услышал'
-
-settings_update_city_intro = '''Ваш город: %s. 
-Выберите новый:'''
-settings_update_city_done = 'Вы переключили город на: %s'
+how_does_it_work_description = 'Однажды здесь появится подробное описание'
+feedback_message = 'Спасибо за ваше сообщение.'
+settings_update_city_intro = '<b>Ваш город:</b> {}'
+settings_update_city_select_new = 'Выберите новый город:'
+settings_update_city_done = '<b>Ваш город:</b> {}'
 menu_unknown = 'Вы вышли из меню'
 
 # Подача идеи акции
@@ -36,7 +35,7 @@ propose_new_event = 'Подать идею акции'
 start_new_event_process_button = 'Приступить'
 how_to_create_description = 'Здесь будет красивое описание о том как создавать акции'
 geo_independent_event = 'Гео-независимая акция'
-step1_select_event_city = '<b>Шаг 1 из 5:</b> Выберете город проведения акции'
+step1_select_event_city = '<b>Шаг 1 из 5:</b> Выберите город проведения акции'
 step2_event_name_description = '<b>Шаг 2 из 5:</b> Укажите название акции (до %s символов)' % conf.event_name_max_length
 step31_select_event_start_date = '''
 <b>Шаг 3 из 5:</b> Укажите время начала акции

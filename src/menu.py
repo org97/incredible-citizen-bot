@@ -3,15 +3,16 @@ from telegram.ext import (
     MessageHandler,
     Filters,
     CallbackQueryHandler,
-    CommandHandler, CallbackContext)
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, Update
+    CommandHandler,
+    CallbackContext)
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, Update, ParseMode
 import strings as s
-from models import User, City
-from utils import cities_keyboard, user_registered
+from models import User, City, Region
+from utils import cities_keyboard, regions_keyboard, region_cities_keyboard, user_registered
 from configuration import conf
 
 # Menu stages
-START, SETTINGS, FINISH = range(3)
+START, UPDATING_CITY = range(2)
 
 
 default_markup = ReplyKeyboardMarkup(
@@ -27,7 +28,7 @@ default_markup = ReplyKeyboardMarkup(
 def menu(update: Update, context: CallbackContext):
     menu_markup = ReplyKeyboardMarkup(
         [
-            [s.feedback, s.faq],
+            [s.feedback, s.how_does_it_work],
             [s.update_city, s.main_menu],
         ],
         one_time_keyboard=True
@@ -41,9 +42,48 @@ def menu(update: Update, context: CallbackContext):
 def update_city(update: Update, context: CallbackContext):
     reply_markup = InlineKeyboardMarkup(cities_keyboard())
     user = User.by(update.effective_user.id)
-    update.effective_user.send_message(
-        s.settings_update_city_intro % user.city.name, reply_markup=reply_markup)
-    return FINISH
+    if update.message:
+        # navigating here from the menu
+        update.effective_user.send_message(
+            s.settings_update_city_intro.format(user.city.name),
+            parse_mode=ParseMode.HTML)
+        update.effective_user.send_message(
+            s.settings_update_city_select_new,
+            reply_markup=reply_markup
+        )
+    else:
+        # navigating here from the back button
+        query = update.callback_query
+        query.edit_message_text(
+            s.settings_update_city_select_new,
+            reply_markup=reply_markup)
+    return UPDATING_CITY
+
+
+def update_city_2(update: Update, context: CallbackContext):
+    query = update.callback_query
+    user = query.from_user
+    query.answer()
+
+    reply_markup = InlineKeyboardMarkup(regions_keyboard())
+    query.edit_message_text(
+        s.settings_update_city_select_new,
+        reply_markup=reply_markup)
+    return UPDATING_CITY
+
+
+def update_city_3(update: Update, context: CallbackContext):
+    query = update.callback_query
+    user = query.from_user
+    query.answer()
+
+    region_name = query.data.split(':')[1]
+    region = Region.by(name=region_name)
+    reply_markup = InlineKeyboardMarkup(region_cities_keyboard(region=region))
+    query.edit_message_text(
+        s.settings_update_city_select_new,
+        reply_markup=reply_markup)
+    return UPDATING_CITY
 
 
 def finish_update_city(update: Update, context: CallbackContext):
@@ -58,29 +98,28 @@ def finish_update_city(update: Update, context: CallbackContext):
 
         query.edit_message_text(s.got_it)
         query.from_user.send_message(
-            s.settings_update_city_done % user.city.name,
+            s.settings_update_city_done.format(user.city.name),
+            parse_mode=ParseMode.HTML,
             reply_markup=default_markup)
     else:
-        conf.logger.error("Unrecognized city: %s", city_name)
-
+        conf.logger.error("Unrecognized city in update city: %s", city_name)
     return ConversationHandler.END
 
 
-def faq(update: Update, context: CallbackContext):
+def how_does_it_work(update: Update, context: CallbackContext):
     message = update.message
     message.from_user.send_message(
-        s.faq_message,
+        s.how_does_it_work_description,
         reply_markup=default_markup)
-
     return ConversationHandler.END
 
 
 def feedback(update: Update, context: CallbackContext):
+    # TODO: process feedback. For now this is just a placeholder
     message = update.message
     message.from_user.send_message(
         s.feedback_message,
         reply_markup=default_markup)
-
     return ConversationHandler.END
 
 
@@ -101,21 +140,25 @@ def main_menu(update: Update, context: CallbackContext):
 
 
 conv_handler = ConversationHandler(
-    entry_points=[MessageHandler(
-        Filters.regex('^%s$' % s.menu), menu)],
+    entry_points=[MessageHandler(Filters.regex('^%s$' % s.menu), menu)],
     states={
         START: [
             CallbackQueryHandler(menu, pattern='^menu$'),
             MessageHandler(Filters.regex('^%s$' % s.main_menu), main_menu),
             MessageHandler(Filters.regex('^%s$' % s.update_city), update_city),
-
-            MessageHandler(Filters.regex('^%s$' % s.faq), faq),
+            MessageHandler(Filters.regex('^%s$' %
+                                         s.how_does_it_work), how_does_it_work),
             MessageHandler(Filters.regex('^%s$' % s.feedback), feedback),
-
         ],
-        FINISH: [
-            CallbackQueryHandler(finish_update_city,
-                                 pattern='^select_city'),
+        UPDATING_CITY: [
+            # going back from the list of regional cities
+            CallbackQueryHandler(update_city, pattern='^select_city_1$'),
+            # selecting a region
+            CallbackQueryHandler(update_city_2, pattern='^select_city_2$'),
+            # selecting a city by region
+            CallbackQueryHandler(update_city_3, pattern='^select_city_3'),
+            # concrete city is selected
+            CallbackQueryHandler(finish_update_city, pattern='^select_city'),
         ],
     },
     fallbacks=[

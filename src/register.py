@@ -100,7 +100,7 @@ conv_handler = ConversationHandler(
             CallbackQueryHandler(select_city_1, pattern='^select_city_1$'),
         ],
         CITY_SELECTION: [
-            # selecting from the list of regional cities
+            # going back from the list of regional cities
             CallbackQueryHandler(select_city_1, pattern='^select_city_1$'),
             # selecting a region
             CallbackQueryHandler(select_city_2, pattern='^select_city_2$'),
