@@ -7,7 +7,6 @@ import strings as s
 
 def cities_keyboard():
     return [
-        # TODO: сделать через подгрузку справочника из базы
         [InlineKeyboardButton(
             "Минск", callback_data='select_city:Минск')],
         [InlineKeyboardButton(

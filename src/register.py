@@ -24,7 +24,7 @@ def start(update: Update, context: CallbackContext):
             s.welcome_back,
             reply_markup=default_markup
         )
-        return CITY_SELECTION
+        return ConversationHandler.END
     else:
         keyboard = [
             [InlineKeyboardButton(s.register, callback_data='select_city_1')],
