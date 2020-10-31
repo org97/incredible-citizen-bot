@@ -370,3 +370,23 @@ class Participation(Base):
 
     def html_checkout_question(self):
         return s.did_you_participate.format(self.event.name, self.event.time)
+
+
+class Feedback(Base):
+    __tablename__ = 'feedbacks'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship(User, backref=backref('feedbacks', uselist=True))
+    message = Column(String, nullable=False)
+
+    def __repr__(self):
+        return "<Feedback(id='%s', user='%s', message='%s')>" % (self.id, self.user, self.message)
+
+    @staticmethod
+    def create(user, message):
+        print("user: %s" % user)
+        feedback = Feedback(user=user, message=message)
+        db.session.add(feedback)
+        db.session.commit()
+        return feedback

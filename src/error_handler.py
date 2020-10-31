@@ -37,4 +37,5 @@ def error_handler(update: Update, context: CallbackContext):
 
     DEVELOPER_CHAT_ID = os.getenv('DEVELOPER_CHAT_ID')
     context.bot.send_message(chat_id=DEVELOPER_CHAT_ID,
-                             text=message[:4096], parse_mode=ParseMode.HTML)
+                             text=message[:4096])
+    return ConversationHandler.END

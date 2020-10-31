@@ -7,12 +7,17 @@ from telegram.ext import (
     CallbackContext)
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, Update, ParseMode
 import strings as s
-from models import User, City, Region
-from utils import cities_keyboard, regions_keyboard, region_cities_keyboard, user_registered
+from models import User, City, Region, Feedback
+from utils import (
+    cities_keyboard,
+    regions_keyboard,
+    region_cities_keyboard,
+    user_registered)
 from configuration import conf
+import os
 
 # Menu stages
-START, UPDATING_CITY = range(2)
+START, UPDATING_CITY, FEEDBACK = range(3)
 
 
 default_markup = ReplyKeyboardMarkup(
@@ -29,7 +34,7 @@ def menu(update: Update, context: CallbackContext):
     menu_markup = ReplyKeyboardMarkup(
         [
             [s.feedback, s.how_does_it_work],
-            [s.update_city, s.main_menu],
+            [s.update_city, s.back],
         ],
         one_time_keyboard=True
     )
@@ -115,10 +120,23 @@ def how_does_it_work(update: Update, context: CallbackContext):
 
 
 def feedback(update: Update, context: CallbackContext):
-    # TODO: process feedback. For now this is just a placeholder
     message = update.message
     message.from_user.send_message(
-        s.feedback_message,
+        s.feedback_intro,
+        reply_markup=default_markup)
+    return FEEDBACK
+
+
+def feedback_receive(update: Update, context: CallbackContext):
+    message = update.message
+    user = User.by(tg_id=message.from_user.id)
+    Feedback.create(user=user, message=message.text)
+
+    # FEEDBACK_CHAT_ID = os.getenv('FEEDBACK_CHAT_ID')
+    # context.bot.send_message(chat_id=FEEDBACK_CHAT_ID, text=message)
+
+    message.from_user.send_message(
+        s.feedback_finish,
         reply_markup=default_markup)
     return ConversationHandler.END
 
@@ -135,7 +153,6 @@ def main_menu(update: Update, context: CallbackContext):
     message.from_user.send_message(
         s.got_it,
         reply_markup=default_markup)
-
     return ConversationHandler.END
 
 
@@ -144,7 +161,7 @@ conv_handler = ConversationHandler(
     states={
         START: [
             CallbackQueryHandler(menu, pattern='^menu$'),
-            MessageHandler(Filters.regex('^%s$' % s.main_menu), main_menu),
+            MessageHandler(Filters.regex('^%s$' % s.back), main_menu),
             MessageHandler(Filters.regex('^%s$' % s.update_city), update_city),
             MessageHandler(Filters.regex('^%s$' %
                                          s.how_does_it_work), how_does_it_work),
@@ -160,6 +177,9 @@ conv_handler = ConversationHandler(
             # concrete city is selected
             CallbackQueryHandler(finish_update_city, pattern='^select_city'),
         ],
+        FEEDBACK: [
+            MessageHandler(Filters.text & ~Filters.command, feedback_receive),
+        ]
     },
     fallbacks=[
         MessageHandler(Filters.text, unknown),
