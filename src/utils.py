@@ -22,7 +22,7 @@ def cities_keyboard():
         [InlineKeyboardButton(
             "Города Беларуси >>", callback_data='select_city_2')],
         [InlineKeyboardButton(
-            "Другой", callback_data='select_city:Другой')],
+            "Я не в Беларуси", callback_data='select_city:Я не в Беларуси')],
     ]
 
 

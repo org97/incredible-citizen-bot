@@ -108,6 +108,8 @@ def enter_event_name(update: Update, context: CallbackContext):
                              text=s.step2_event_name_description,
                              parse_mode=ParseMode.HTML,
                              reply_markup=InlineKeyboardMarkup(keyboard))
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text=s.typing_hint)
     return TYPING_NAME
 
 

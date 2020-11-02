@@ -1,4 +1,4 @@
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import Updater, MessageHandler, Filters, ConversationHandler
 import strings as s
 import menu
 import register
@@ -13,6 +13,13 @@ from dotenv import load_dotenv
 
 dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
+
+
+def unknown(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text=s.unknow_request,
+                             reply_markup=menu.default_markup)
+    return ConversationHandler.END
 
 
 def main():
@@ -32,12 +39,10 @@ def main():
     updater.dispatcher.add_error_handler(error_handler.error_handler)
 
     # Message Handlers
-    # TODO: do we need it?
     updater.dispatcher.add_handler(
-        MessageHandler(Filters.command, menu.unknown))
+        MessageHandler(Filters.text, unknown))
 
     # Start the Bot
-
     updater.start_polling()
 
     # Run the bot until the user presses Ctrl-C or the process receives SIGINT,

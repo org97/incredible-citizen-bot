@@ -250,7 +250,7 @@ def main():
       - name: Шклов
         region_id: 6
         
-      - name: Другой
+      - name: Я не в Беларуси
     """
     Base.metadata.create_all(db.engine)
     sqla_yaml_fixtures.load(Base, db.session, fixture)
