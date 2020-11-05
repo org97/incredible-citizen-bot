@@ -1,4 +1,5 @@
-python-telegram-bot
-SQLAlchemy
-sqla_yaml_fixtures
-python-dotenv
+python-telegram-bot==13.0
+SQLAlchemy==1.3.20
+sqla-yaml-fixtures==0.9.1
+python-dotenv==0.14.0
+psycopg2-binary==2.8.6

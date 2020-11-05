@@ -3,3 +3,4 @@
 .env
 mydb.sqlite
 *.pyc
+data
