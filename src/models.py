@@ -126,6 +126,7 @@ class User(Base):
 
     def available_events_for_validation(self):
         # - exclude events submitted by the user
+        # - exclude events validated by the user
         # - exclude blocked events
         # - exclude already validated events
         # - get events with deadline > now
@@ -134,6 +135,7 @@ class User(Base):
         #   a priority, then all other events
         events = db.session.query(Event) \
             .filter(Event.creator != self,
+                    ~Event.validations.any(Validation.validator == self),
                     Event.is_blocked == False,
                     Event.completed_validations < conf.required_validations,
                     # TODO: add some delta to now()
@@ -146,6 +148,7 @@ class User(Base):
             # exclude city priority
             events = db.session.query(Event) \
                 .filter(Event.creator != self,
+                        ~Event.validations.any(Validation.validator == self),
                         Event.is_blocked == False,
                         Event.completed_validations < conf.required_validations,
                         Event.start_date > datetime.now()) \

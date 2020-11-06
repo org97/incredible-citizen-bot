@@ -4,3 +4,4 @@
 mydb.sqlite
 *.pyc
 data
+.devcontainer

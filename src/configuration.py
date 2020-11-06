@@ -21,10 +21,10 @@ class Configuration:
     event_description_max_length = 3500
 
     # Limitation on the amount of events that any person can propose within a day
-    max_events_ideas_per_day = 1
+    max_events_ideas_per_day = 2
 
     # Limitation on the amount of events that any person can validatin within a day
-    max_events_validations_per_day = 1
+    max_events_validations_per_day = 2
 
     # When picking events for validation, this number will be considered as pseudo-validations
     # with the highes possible rate to put new ideas to the higest priority for new validators.
@@ -36,7 +36,7 @@ class Configuration:
     new_event_weighted_position = 8
 
     # Minimum required amount of validations to consider event as validated
-    required_validations = 5
+    required_validations = 15
 
     # Blocking validations is a validation with a "red flag":
     # - event calls to violence
@@ -46,11 +46,11 @@ class Configuration:
 
     # Amount of candidates for polling that will be sorted by interest rating
     # Both quality/interest ratings are formed by validators
-    polling_candidates_by_quality_rating = 30
+    polling_candidates_by_quality_rating = 15
 
     # Amount of candidates presented to users
     # This number should be not more than 10
-    polling_candidates = 10
+    polling_candidates = 3
 
     def __init__(self):
         logging.basicConfig(
