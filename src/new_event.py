@@ -25,6 +25,7 @@ def start_new_event(update: Update, context: CallbackContext):
     ]
     update.message.reply_text(
         s.how_to_create_description,
+        parse_mode=ParseMode.HTML,
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
     return START
@@ -299,6 +300,7 @@ def finish(update: Update, context: CallbackContext):
 
     query.from_user.send_message(
         s.thanks_for_event_creation_message,
+        parse_mode=ParseMode.HTML,
         reply_markup=default_markup)
     return ConversationHandler.END
 

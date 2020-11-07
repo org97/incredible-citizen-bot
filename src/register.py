@@ -32,6 +32,7 @@ def start(update: Update, context: CallbackContext):
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(
             s.new_user_greeting,
+            parse_mode=ParseMode.HTML,
             reply_markup=reply_markup
         )
         return START
