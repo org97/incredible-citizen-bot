@@ -133,7 +133,8 @@ def feedback_receive(update: Update, context: CallbackContext):
     Feedback.create(user=user, message=message.text)
 
     FEEDBACK_CHAT_ID = os.getenv('FEEDBACK_CHAT_ID')
-    context.bot.send_message(chat_id=FEEDBACK_CHAT_ID, text=message.text)
+    feedback = f'{s.feedback}::{message.from_user.id}\n{message.text}'
+    context.bot.send_message(chat_id=FEEDBACK_CHAT_ID, text=feedback)
 
     message.from_user.send_message(
         s.feedback_finish,
