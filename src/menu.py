@@ -25,7 +25,8 @@ default_markup = ReplyKeyboardMarkup(
         [s.propose_new_event, s.events],
         [s.validate_event, s.menu],
     ],
-    one_time_keyboard=True
+    one_time_keyboard=True,
+    resize_keyboard=True
 )
 
 
@@ -36,7 +37,8 @@ def menu(update: Update, context: CallbackContext):
             [s.feedback, s.how_does_it_work],
             [s.update_city, s.back],
         ],
-        one_time_keyboard=True
+        one_time_keyboard=True,
+        resize_keyboard=True
     )
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text=s.got_it,
@@ -115,6 +117,7 @@ def how_does_it_work(update: Update, context: CallbackContext):
     message = update.message
     message.from_user.send_message(
         s.how_does_it_work_description,
+        parse_mode=ParseMode.HTML,
         reply_markup=default_markup)
     return ConversationHandler.END
 
