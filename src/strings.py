@@ -165,6 +165,13 @@ rate_event_quality_message = '''
 your_answer = '<b>Ваш ответ:</b> {}'
 rate_event_interest_message = 'Оцените интерес данной идеи для вас лично от <b>0 до 10</b>.'
 event_validation_process_interrupted_message = 'Процесс проверки прерван. Попробуйте ещё раз.'
+event_validation_with_call_to_violence_review = '''
+<b>Проверьте ваши ответы</b>
+Призыв к насилию: ☠️ Да
+
+Идеи акций призывающие к насилию не требуют дальнейшей проверки.
+Спасибо, что помогаете выявить их!
+'''
 event_validation_review = '''
 <b>Проверьте ваши ответы</b>
 Призыв к насилию: ✅ Нет

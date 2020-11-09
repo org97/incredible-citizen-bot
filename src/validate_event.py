@@ -65,20 +65,27 @@ def handle_call_to_violence(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
 
-    user = User.by(tg_id=query.from_user.id)
-    validation = user.get_not_finished_validation()
-    validation.update(call_to_violence=True)
+    context.user_data['call_to_violence'] = True
 
     query.from_user.send_message(s.your_answer.format(
         s.yes_danger), parse_mode=ParseMode.HTML)
+
+    keyboard = [
+        [InlineKeyboardButton(s.edit_replies, callback_data='edit_replies'),
+         InlineKeyboardButton(s.all_good, callback_data='finish')]
+    ]
     query.from_user.send_message(
-        s.thanks_for_validation, reply_markup=default_markup)
-    return ConversationHandler.END
+        s.event_validation_with_call_to_violence_review,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode=ParseMode.HTML)
+    return FINISH
 
 
 def rate_event_quality(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
+
+    context.user_data['call_to_violence'] = False
 
     keyboard = [
         [
@@ -168,12 +175,14 @@ def finish(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
 
-    quality_rating = context.user_data['quality_rating']
-    interest_rating = context.user_data['interest_rating']
+    call_to_violence = context.user_data['call_to_violence']
+    # will be None if call_to_violence == True
+    quality_rating = context.user_data['quality_rating'] if 'quality_rating' in context.user_data else None
+    interest_rating = context.user_data['interest_rating'] if 'interest_rating' in context.user_data else None
 
     user = User.by(tg_id=query.from_user.id)
     validation = user.get_not_finished_validation()
-    validation.update(call_to_violence=False,
+    validation.update(call_to_violence=call_to_violence,
                       quality_rating=quality_rating,
                       interest_rating=interest_rating)
 
