@@ -356,7 +356,7 @@ conv_handler = ConversationHandler(
                                  pattern='^skip_start_time$'),
             # on typing event duration
             MessageHandler(Filters.regex(
-                r'^\d{2}:\d{2}$'), enter_event_description),
+                r'^\d{1,2}:\d{2}$'), enter_event_description),
             # on invalid date/time format
             MessageHandler(Filters.text & ~Filters.command, typing_dates_error)
         ],
