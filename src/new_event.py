@@ -201,7 +201,8 @@ def select_start_time(update: Update, context: CallbackContext):
 
 def typing_dates_error(update: Update, context, message=s.typing_dates_error):
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=message)
+                             text=message, 
+                             parse_mode=ParseMode.HTML)
     update.message = None
     select_start_date(update, context)
     return TYPING_DATES
