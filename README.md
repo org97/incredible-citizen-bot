@@ -4,6 +4,8 @@
 
 Данный бот является реализацией идеи проекта [OIP-2](https://github.com/org97/OIPs/blob/main/OIPS/oip-2.md)
 
+![participate-demo-480](https://user-images.githubusercontent.com/67525106/110784603-c98f9180-8261-11eb-96ac-f44fc860f321.gif)
+
 Отдельно взятая акция проходит через следующий жизненный цикл:
 
 **Подача идеи акции**
